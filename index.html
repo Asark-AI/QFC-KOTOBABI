@@ -1054,30 +1054,38 @@
     let currentUser = null;
 
     // ============================================
-    // INITIALIZATION
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      initializePage();
-    });
+// INITIALIZATION
+// ============================================
 
-    function initializePage() {
-      const userStr = localStorage.getItem('user');
-      
-      if (!userStr) {
-        window.location.href = window.location.origin + window.location.pathname + '?page=signup';
-        return;
-      }
+document.addEventListener('DOMContentLoaded', async () => {
+  await initializePage();
+});
 
-      try {
-        currentUser = JSON.parse(userStr);
-        displayUserInfo();
-        loadAllData();
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        localStorage.clear();
-        window.location.href = window.location.origin + window.location.pathname + '?page=signup';
-      }
-    }
+async function initializePage() {
+  try {
+
+    // Remove localStorage dependency completely
+    currentUser = {
+      userID: 1,
+      name: 'Media Team',
+      email: 'media@qfckotobabi.org',
+      role: 'Admin'
+    };
+
+    displayUserInfo();
+
+    await loadAllData();
+
+  } catch (error) {
+    console.error('Initialization error:', error);
+
+    showMessage(
+      'alertContainer',
+      'Failed to initialize application',
+      'error'
+    );
+  }
+}
 
     function displayUserInfo() {
       if (!currentUser) return;
@@ -1125,9 +1133,12 @@
         pageElement.classList.add('active');
       }
 
-      if (event && event.target) {
-        event.target.classList.add('active');
-      }
+      if (event) {
+  const menuItem = event.currentTarget;
+  if (menuItem) {
+    menuItem.classList.add('active');
+  }
+}
 
       const titleMap = {
         'home': 'Welcome to Church Media',
