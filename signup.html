@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Church Media System - Sign Up</title>
+  <title>QFC KOT Media System - Sign Up</title>
   <style>
     * {
       margin: 0;
@@ -256,7 +256,7 @@
   <div class="signup-container">
     <div class="signup-header">
       <div class="signup-logo">⛪</div>
-      <h1 class="signup-title">Church Media System</h1>
+      <h1 class="signup-title">QFC KOT Media System</h1>
       <p class="signup-subtitle">Create your account</p>
     </div>
 
@@ -269,7 +269,7 @@
           type="text" 
           id="fullName" 
           class="form-input" 
-          placeholder="Imma Asark"
+          placeholder="Immaneul Asark"
           required
         >
       </div>
@@ -280,7 +280,7 @@
           type="email" 
           id="email" 
           class="form-input" 
-          placeholder="assrk@email.com"
+          placeholder="example@email.com"
           required
         >
       </div>
@@ -364,216 +364,280 @@
   </div>
 
   <script>
-    // ============================================
-    // CONFIGURATION - UPDATE YOUR GOOGLE APPS SCRIPT URL HERE
-    // ============================================
-    const GOOGLE_APPS_SCRIPT_URL = 
-    // Replace 'YOUR_DEPLOYMENT_ID' with your actual Google Apps Script deployment ID
+  const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygFJyz5Mi-3sSpK_GLDZTD0QtLTx6kNiW0N-C_E9-WkH9T6Q0YnO8sdU9sAfC52WDp/exec';
 
-    // ============================================
-    // INITIALIZATION
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      // Check if user is already logged in
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        // User already logged in, redirect to home
-        window.location.href = window.location.origin + window.location.pathname + '?page=index';
-      }
-    });
+// ============================================
+// PAGE LOAD
+// ============================================
 
-    // ============================================
-    // FORM HANDLING
-    // ============================================
-    async function handleSignup(event) {
-      event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+const existingUser = localStorage.getItem("user");
 
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const role = document.getElementById('role').value;
-      const ministry = document.getElementById('ministry').value;
 
-      // Validation
-      if (!fullName) {
-        showMessage('Please enter your full name', 'error');
-        return;
-      }
+if (existingUser) {
+    try {
+        const user = JSON.parse(existingUser);
 
-      if (!email || !isValidEmail(email)) {
-        showMessage('Please enter a valid email address', 'error');
-        return;
-      }
-
-      if (!password || password.length < 8) {
-        showMessage('Password must be at least 8 characters long', 'error');
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        showMessage('Passwords do not match', 'error');
-        return;
-      }
-
-      if (!role) {
-        showMessage('Please select a role', 'error');
-        return;
-      }
-
-      if (!ministry) {
-        showMessage('Please select a ministry', 'error');
-        return;
-      }
-
-      // Disable submit button and show loading state
-      const submitBtn = document.getElementById('submitBtn');
-      const originalText = submitBtn.textContent;
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="loading-spinner"></span> Creating account...';
-
-      try {
-        // Call backend to register user
-        const result = await callBackend('registerUser', [fullName, email, password, role, ministry]);
-        
-        if (result && result.success) {
-          showMessage('✓ Account created successfully! Logging you in...', 'success');
-          
-          // Store user info in localStorage
-          const userInfo = {
-            userID: result.userID,
-            name: fullName,
-            email: email,
-            role: role,
-            ministry: ministry
-          };
-          
-          localStorage.setItem('user', JSON.stringify(userInfo));
-
-          // Redirect to home page after short delay
-          setTimeout(() => {
-            window.location.href = window.location.origin + window.location.pathname + '?page=index';
-          }, 1500);
-        } else {
-          showMessage(result.message || 'Registration failed. Please try again.', 'error');
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
+        if (user.userID) {
+            window.location.href = "index.html";
         }
-      } catch (error) {
-        console.error('Signup error:', error);
-        showMessage('An error occurred. Please try again. Error: ' + error.message, 'error');
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
+    } catch (err) {
+        localStorage.removeItem("user");
     }
+}
 
-    // ============================================
-    // BACKEND COMMUNICATION
-    // ============================================
-    function callBackend(functionName, args, timeout = 10000) {
-      return new Promise((resolve, reject) => {
-        // Try Google Apps Script first (if deployed there)
-        if (typeof google !== "undefined" && google.script) {
-          const timeoutId = setTimeout(() => {
-            reject(new Error(`Backend call to ${functionName} timed out`));
-          }, timeout);
 
-          const runner = google.script.run;
-          runner
-            .withSuccessHandler((result) => {
-              clearTimeout(timeoutId);
-              resolve(result);
+});
+
+// ============================================
+// SIGNUP
+// ============================================
+
+async function handleSignup(event) {
+event.preventDefault();
+
+
+const submitBtn = document.getElementById("submitBtn");
+
+const fullName =
+    document.getElementById("fullName").value.trim();
+
+const email =
+    document.getElementById("email").value.trim().toLowerCase();
+
+const password =
+    document.getElementById("password").value;
+
+const confirmPassword =
+    document.getElementById("confirmPassword").value;
+
+const role =
+    document.getElementById("role").value;
+
+const ministry =
+    document.getElementById("ministry").value;
+
+// Validation
+
+if (!fullName) {
+    showMessage("Please enter your full name", "error");
+    return;
+}
+
+if (!email) {
+    showMessage("Please enter your email", "error");
+    return;
+}
+
+if (!isValidEmail(email)) {
+    showMessage("Invalid email address", "error");
+    return;
+}
+
+if (password.length < 8) {
+    showMessage(
+        "Password must be at least 8 characters",
+        "error"
+    );
+    return;
+}
+
+if (password !== confirmPassword) {
+    showMessage(
+        "Passwords do not match",
+        "error"
+    );
+    return;
+}
+
+if (!role) {
+    showMessage("Select a role", "error");
+    return;
+}
+
+if (!ministry) {
+    showMessage("Select a ministry", "error");
+    return;
+}
+
+try {
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating Account...";
+
+    showMessage("Creating account...", "info");
+
+    const response = await fetch(
+        GOOGLE_APPS_SCRIPT_URL,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                function: "registerUser",
+                params: [
+                    fullName,
+                    email,
+                    password,
+                    role,
+                    ministry
+                ]
             })
-            .withFailureHandler((error) => {
-              clearTimeout(timeoutId);
-              reject(error);
-            });
-
-          if (args && args.length > 0) {
-            runner[functionName].apply(runner, args);
-          } else {
-            runner[functionName]();
-          }
-        } else {
-          // Use fetch API for GitHub Pages deployment
-          const payload = {
-            function: functionName,
-            params: args || []
-          };
-
-          fetch(GOOGLE_APPS_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success === false && data.error) {
-                reject(new Error(data.error));
-              } else {
-                resolve(data);
-              }
-            })
-            .catch(error => reject(error));
         }
-      });
+    );
+
+    const result = await response.json();
+
+    console.log("Server Response:", result);
+
+    if (result.success) {
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify({
+                userID: result.userID,
+                name: fullName,
+                email: email,
+                role: role,
+                ministry: ministry
+            })
+        );
+
+        showMessage(
+            "Account created successfully!",
+            "success"
+        );
+
+        document.getElementById("signupForm").reset();
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1500);
+
+    } else {
+
+        showMessage(
+            result.message ||
+            result.error ||
+            "Registration failed",
+            "error"
+        );
+
     }
 
-    // ============================================
-    // UTILITY FUNCTIONS
-    // ============================================
-    function showMessage(text, type) {
-      const messageEl = document.getElementById('message');
-      messageEl.textContent = text;
-      messageEl.className = 'form-message ' + type;
-    }
+} catch (error) {
 
-    function isValidEmail(email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email);
-    }
+    console.error(error);
 
-    function showPasswordRequirements() {
-      document.getElementById('passwordRequirements').classList.add('show');
-    }
+    showMessage(
+        "Unable to connect to server",
+        "error"
+    );
 
-    function hidePasswordRequirements() {
-      setTimeout(() => {
-        document.getElementById('passwordRequirements').classList.remove('show');
-      }, 200);
-    }
+} finally {
 
-    function checkPasswordStrength() {
-      const password = document.getElementById('password').value;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Create Account";
 
-      const hasLength = password.length >= 8;
-      const hasUpper = /[A-Z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
+}
 
-      updateCheck('check-length', hasLength);
-      updateCheck('check-upper', hasUpper);
-      updateCheck('check-number', hasNumber);
-    }
 
-    function updateCheck(elementId, isValid) {
-      const element = document.getElementById(elementId);
-      if (isValid) {
-        element.classList.add('valid');
-        element.textContent = '✓';
-      } else {
-        element.classList.remove('valid');
-        element.textContent = '';
-      }
-    }
+}
 
-    function redirectToLogin(event) {
-      event.preventDefault();
-      // For now, show a message since we don't have a dedicated login page
-      showMessage('Login functionality will be implemented soon. Create your account to get started!', 'info');
-    }
+// ============================================
+// EMAIL VALIDATION
+// ============================================
+
+function isValidEmail(email) {
+return /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email);
+}
+
+// ============================================
+// MESSAGE BOX
+// ============================================
+
+function showMessage(message, type) {
+
+
+const box =
+    document.getElementById("message");
+
+box.className =
+    "form-message " + type;
+
+box.textContent = message;
+
+
+}
+
+// ============================================
+// PASSWORD CHECKER
+// ============================================
+
+function showPasswordRequirements() {
+document
+.getElementById("passwordRequirements")
+.classList.add("show");
+}
+
+function hidePasswordRequirements() {
+setTimeout(() => {
+document
+.getElementById("passwordRequirements")
+.classList.remove("show");
+}, 200);
+}
+
+function checkPasswordStrength() {
+
+
+const password =
+    document.getElementById("password").value;
+
+updateCheck(
+    "check-length",
+    password.length >= 8
+);
+
+updateCheck(
+    "check-upper",
+    /[A-Z]/.test(password)
+);
+
+updateCheck(
+    "check-number",
+    /\d/.test(password)
+);
+
+
+}
+
+function updateCheck(id, valid) {
+
+
+const el =
+    document.getElementById(id);
+
+if (valid) {
+    el.classList.add("valid");
+    el.textContent = "✓";
+} else {
+    el.classList.remove("valid");
+    el.textContent = "";
+}
+
+
+}
+
+// ============================================
+// LOGIN LINK
+// ============================================
+
+function redirectToLogin(event) {
+event.preventDefault();
+window.location.href = "index.html";
+}
+
+
+
   </script>
 </body>
 </html>
